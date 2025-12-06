@@ -6,6 +6,7 @@ import 'package:todo_nti4/core/helper/app_validator.dart';
 import 'package:todo_nti4/core/widgets/custom_filled_btn.dart';
 import 'package:todo_nti4/core/widgets/custom_form_field.dart';
 import 'package:todo_nti4/features/auth/views/Login_view.dart';
+import 'package:todo_nti4/features/home/views/home_view.dart';
 
 import '../cubit/login_cubit/login_cubit.dart';
 import '../cubit/login_cubit/login_state.dart';
@@ -38,7 +39,7 @@ class LoginView extends StatelessWidget {
                state: PopUpState.success
              );
 
-            //  AppNavigator.goTo(context, const LoginView()); TODO: home
+             AppNavigator.goTo(context, HomeView(user: state.user), replaceAll: true); 
             }
           },
           builder: (context, state) {

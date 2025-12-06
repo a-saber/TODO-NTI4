@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_nti4/core/utils/app_colors.dart';
+import 'package:todo_nti4/features/auth/views/login_view.dart';
+import 'package:todo_nti4/features/home/views/home_view.dart';
 
 import 'features/auth/views/register_view.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('accsess_token');
+
+  runApp(MyApp(isLoggedIn: token != null,));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+  const MyApp({super.key, this.isLoggedIn = false});
+  final bool isLoggedIn;
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -17,8 +25,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary)
       ),
-      // TODO: check if user is logged in
-      home: RegisterView(),
+      // home: isLoggedIn? HomeView(user: user): LoginView(), // TODO
+      home: LoginView(),
     );
   }
 }

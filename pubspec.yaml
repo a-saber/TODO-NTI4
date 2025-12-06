@@ -37,6 +37,8 @@ dependencies:
   flutter_bloc: 
   dio:
   dartz:
+  cached_network_image: 
+  shared_preferences: 
 
 dev_dependencies:
   flutter_test:
