@@ -1,10 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo_nti4/core/helper/app_navigator.dart';
 import 'package:todo_nti4/core/utils/app_colors.dart';
 import 'package:todo_nti4/features/auth/data/model/user_model.dart';
+import 'package:todo_nti4/features/auth/views/login_view.dart';
 import 'package:todo_nti4/features/home/cubit/get_tasks_cubit/get_tasks_cubit.dart';
 import 'package:todo_nti4/features/home/cubit/get_tasks_cubit/get_tasks_state.dart';
+import 'package:todo_nti4/features/home/cubit/get_user_data_cubit/get_user_data_cubit.dart';
+import 'package:todo_nti4/features/home/cubit/get_user_data_cubit/get_user_data_state.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -13,27 +18,51 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            SizedBox(
-              height: 50,
-              width: 50,
-              child: CachedNetworkImage(
-                // imageUrl: user.imagePath??'', TODO
-                imageUrl: '',
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-              ),
-            ),
-            SizedBox(width: 10,),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Welcome'),
-                // Text(user.username??''), TODO
-              ],
-            )
-          ],
+        title: BlocProvider(
+          create: (context) => GetUserDataCubit()..getUserDataPressed(),
+          child: BlocBuilder<GetUserDataCubit, GetUserDataState>(
+            builder: (context, state) {
+              if(state is GetUserDataSuccessState){
+                 return Row(
+                children: [
+                  SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: CachedNetworkImage(
+                      imageUrl: state.user.imagePath??'', 
+                      placeholder: (context, url) => CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                    ),
+                  ),
+                  SizedBox(width: 10,),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Welcome'),
+                      Text(state.user.username??''),
+                    ],
+                  )
+                ],
+              );
+              }
+              else if (state is GetUserDataLoadingState){
+                return Center(child: CircularProgressIndicator(),);
+              }
+              else if (state is GetUserDataErrorState){
+                return Center(child: Row(
+                  children: [
+                    TextButton(onPressed: ()async{
+                      var pref = await SharedPreferences.getInstance();
+                      pref.remove('access_token');
+                      AppNavigator.goTo(context, LoginView(), replaceAll: true);
+                    }, child: Text('Logout')),
+                    Text(state.error),
+                  ],
+                ),);
+              }
+              return Container();
+             }
+          ),
         ),
       ),
       body: BlocProvider(
