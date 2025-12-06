@@ -7,9 +7,7 @@ import 'package:todo_nti4/features/home/cubit/get_tasks_cubit/get_tasks_cubit.da
 import 'package:todo_nti4/features/home/cubit/get_tasks_cubit/get_tasks_state.dart';
 
 class HomeView extends StatelessWidget {
-  const HomeView({super.key, required this.user});
-
-  final UserModel user;
+  const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +19,8 @@ class HomeView extends StatelessWidget {
               height: 50,
               width: 50,
               child: CachedNetworkImage(
-                imageUrl: user.imagePath??'',
+                // imageUrl: user.imagePath??'', TODO
+                imageUrl: '',
                 placeholder: (context, url) => CircularProgressIndicator(),
                 errorWidget: (context, url, error) => Icon(Icons.error),
               ),
@@ -31,7 +30,7 @@ class HomeView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Welcome'),
-                Text(user.username??''),
+                // Text(user.username??''), TODO
               ],
             )
           ],

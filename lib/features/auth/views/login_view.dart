@@ -39,7 +39,7 @@ class LoginView extends StatelessWidget {
                state: PopUpState.success
              );
 
-             AppNavigator.goTo(context, HomeView(user: state.user), replaceAll: true); 
+             AppNavigator.goTo(context, HomeView(), replaceAll: true); 
             }
           },
           builder: (context, state) {

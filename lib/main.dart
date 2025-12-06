@@ -25,8 +25,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary)
       ),
-      // home: isLoggedIn? HomeView(user: user): LoginView(), // TODO
-      home: LoginView(),
+      home: isLoggedIn? HomeView(): LoginView(), // TODO
     );
   }
 }
