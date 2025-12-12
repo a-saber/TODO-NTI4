@@ -1,72 +1,52 @@
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo_nti4/core/network/api_helper.dart';
+import 'package:todo_nti4/core/network/api_response.dart';
+import 'package:todo_nti4/core/network/end_points.dart';
 import 'package:todo_nti4/features/auth/data/model/user_model.dart';
 import 'package:todo_nti4/features/home/data/models/get_tasks_response_model.dart';
 import 'package:todo_nti4/features/home/data/models/tassk_model.dart';
 
 class HomeRepo {
-  Dio dio = Dio();
+  ApiHelper apiHelper = ApiHelper();
   Future<Either<String, List<TaskModel>>> getTasks()async
   {
     try{
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? accessToken =  prefs.getString('accsess_token');
-      var response = await dio.get(
-        'https://ntitodo-production-1fa0.up.railway.app/api/my_tasks',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken'
-          }
-        )
+      var response = await apiHelper.getRequest(
+        endPoint: EndPoints.getTasks,
+        isProtected: true
       );
       var getTasksModel = GetTasksReponseModel.fromJson(response.data as Map<String,dynamic>);
-      print(' tasks:  ${getTasksModel.tasks}');
-      return right(getTasksModel.tasks??[]);
-    }
-      on DioException catch (e){  
-      if(e.response?.data != null)
-      {
-        return left(e.response!.data['message']??'');
+      if(response.status){
+        return right(getTasksModel.tasks??[]);
       }
       else{
-        return left('something went wrong'); // TODO: Handle this case.
+        return left(response.message);
       }
     }
     catch(e){
-      return left('something went wrong');
+      return left(ApiResponse.fromError(e).message);
     }
   }
 
 
   Future<Either<String, UserModel>> getUserData() async{
     try{
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? accessToken =  prefs.getString('accsess_token');
 
-      var response = await dio.get(
-        'https://ntitodo-production-1fa0.up.railway.app/api/get_user_data',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken'
-          }
-        )
+      var response = await apiHelper.getRequest(
+        endPoint: EndPoints.getUserData,
+        isProtected: true
       );
-      UserModel user = UserModel.fromJson((response.data as Map<String,dynamic>)['user'] as Map<String,dynamic>);
-      return right(user);
-
-    }
-      on DioException catch (e){  
-      if(e.response?.data != null)
-      {
-        return left(e.response!.data['message']??'');
+      if(response.status){
+        UserModel user = UserModel.fromJson((response.data as Map<String,dynamic>)['user'] as Map<String,dynamic>);
+        return right(user);
       }
       else{
-        return left('something went wrong'); // TODO: Handle this case.
+        return left(response.message);
       }
+
     }
     catch(e){
-      return left('something went wrong');
+      return left(ApiResponse.fromError(e).message);
     }
   }
 }

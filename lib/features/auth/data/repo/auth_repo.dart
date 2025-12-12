@@ -57,7 +57,7 @@ class AuthRepo {
       var loginModel = LoginResponseModel.fromJson(response.data as Map<String,dynamic>);
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       if(loginModel.accessToken != null){
-        await prefs.setString('accsess_token', loginModel.accessToken!);
+        await prefs.setString('access_token', loginModel.accessToken!);
       }  
       if(loginModel.refreshToken != null){
         await prefs.setString('refresh_token', loginModel.refreshToken!);

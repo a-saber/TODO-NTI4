@@ -146,6 +146,59 @@ class ApiHelper
     ));
   }
 
+  Future<ApiResponse> putRequest({
+    required String endPoint,
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    bool isFormData = true,
+    bool isProtected = false,
+    bool sendRefreshToken = false
+
+  }) async
+  {
+    var token;
+    if(isProtected){
+      var sharedPref = await SharedPreferences.getInstance();
+      token = sharedPref.getString(sendRefreshToken? 'refresh_token' :'access_token');
+    }
+    return ApiResponse.fromResponse(await dio.put(
+      endPoint,
+      queryParameters: queryParameters,
+      data: isFormData? FormData.fromMap(data??{}): data,
+      options: Options(
+        headers: {
+          if(isProtected)'Authorization': 'Bearer $token'
+        }
+      )
+    ));
+  }
+  Future<ApiResponse> deleteRequest({
+    required String endPoint,
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    bool isFormData = true,
+    bool isProtected = false,
+    bool sendRefreshToken = false
+
+  }) async
+  {
+    var token;
+    if(isProtected){
+      var sharedPref = await SharedPreferences.getInstance();
+      token = sharedPref.getString(sendRefreshToken? 'refresh_token' :'access_token');
+    }
+    return ApiResponse.fromResponse(await dio.delete(
+      endPoint,
+      queryParameters: queryParameters,
+      data: isFormData? FormData.fromMap(data??{}): data,
+      options: Options(
+        headers: {
+          if(isProtected)'Authorization': 'Bearer $token'
+        }
+      )
+    ));
+  }
+
 }
 
 

@@ -4,70 +4,82 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_nti4/core/helper/app_navigator.dart';
 import 'package:todo_nti4/core/utils/app_colors.dart';
-import 'package:todo_nti4/features/auth/data/model/user_model.dart';
 import 'package:todo_nti4/features/auth/views/login_view.dart';
 import 'package:todo_nti4/features/home/cubit/get_tasks_cubit/get_tasks_cubit.dart';
 import 'package:todo_nti4/features/home/cubit/get_tasks_cubit/get_tasks_state.dart';
 import 'package:todo_nti4/features/home/cubit/get_user_data_cubit/get_user_data_cubit.dart';
 import 'package:todo_nti4/features/home/cubit/get_user_data_cubit/get_user_data_state.dart';
+import 'package:todo_nti4/features/task/views/add_task_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: BlocProvider(
-          create: (context) => GetUserDataCubit()..getUserDataPressed(),
-          child: BlocBuilder<GetUserDataCubit, GetUserDataState>(
-            builder: (context, state) {
-              if(state is GetUserDataSuccessState){
-                 return Row(
-                children: [
-                  SizedBox(
-                    height: 50,
-                    width: 50,
-                    child: CachedNetworkImage(
-                      imageUrl: state.user.imagePath??'', 
-                      placeholder: (context, url) => CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                    ),
-                  ),
-                  SizedBox(width: 10,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Welcome'),
-                      Text(state.user.username??''),
-                    ],
-                  )
-                ],
-              );
-              }
-              else if (state is GetUserDataLoadingState){
-                return Center(child: CircularProgressIndicator(),);
-              }
-              else if (state is GetUserDataErrorState){
-                return Center(child: Row(
+    return BlocProvider(
+      create: (context) => GetTasksCubit()..getTasks(),
+      child: Scaffold(
+        floatingActionButton: Builder(
+          builder: (context) {
+            return FloatingActionButton(
+              shape: CircleBorder(),
+              onPressed: ()async{
+                bool added = await AppNavigator.goTo<bool>(context, AddTaskView())??false;
+                if(added){
+                  GetTasksCubit.get(context).getTasks();
+                }
+              }, child: Icon(Icons.add),);
+          }
+        ),
+        appBar: AppBar(
+          title: BlocProvider(
+            create: (context) => GetUserDataCubit()..getUserDataPressed(),
+            child: BlocBuilder<GetUserDataCubit, GetUserDataState>(
+              builder: (context, state) {
+                if(state is GetUserDataSuccessState){
+                   return Row(
                   children: [
-                    TextButton(onPressed: ()async{
-                      var pref = await SharedPreferences.getInstance();
-                      pref.remove('access_token');
-                      AppNavigator.goTo(context, LoginView(), replaceAll: true);
-                    }, child: Text('Logout')),
-                    Text(state.error),
+                    SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: CachedNetworkImage(
+                        imageUrl: state.user.imagePath??'', 
+                        placeholder: (context, url) => CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                      ),
+                    ),
+                    SizedBox(width: 10,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Welcome'),
+                        Text(state.user.username??''),
+                      ],
+                    )
                   ],
-                ),);
-              }
-              return Container();
-             }
+                );
+                }
+                else if (state is GetUserDataLoadingState){
+                  return Center(child: CircularProgressIndicator(),);
+                }
+                else if (state is GetUserDataErrorState){
+                  return Center(child: Row(
+                    children: [
+                      TextButton(onPressed: ()async{
+                        var pref = await SharedPreferences.getInstance();
+                        pref.remove('access_token');
+                        AppNavigator.goTo(context, LoginView(), replaceAll: true);
+                      }, child: Text('Logout')),
+                      Text(state.error),
+                    ],
+                  ),);
+                }
+                return Container();
+               }
+            ),
           ),
         ),
-      ),
-      body: BlocProvider(
-        create: (context) => GetTasksCubit()..getTasks(),
-        child: Builder(
+        body: Builder(
           builder: (context) {
             return RefreshIndicator(
               onRefresh: () async{
@@ -133,8 +145,8 @@ class HomeView extends StatelessWidget {
             );
           }
         ),
+      
       ),
-
     );
   }
 }

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 abstract class AppNavigator {
-  static void goTo(context, Widget distination, {bool replaceAll = false})
+  static Future<T?> goTo<T>(context, Widget distination, {bool replaceAll = false})async
   {
     if(replaceAll){
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> distination), (route) => false);
+      return await Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> distination), (route) => false);
     }
     else{
-      Navigator.push(context, MaterialPageRoute(builder: (context) => distination));
+      return await Navigator.push(context, MaterialPageRoute(builder: (context) => distination));
     }
   }
 }

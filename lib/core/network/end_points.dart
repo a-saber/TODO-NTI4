@@ -3,5 +3,9 @@ class EndPoints{
   static const String login = 'login';
   static const String register = 'register';
   static const String refreshToken = 'refresh_token';
+  static const String getTasks = 'my_tasks';
+  static const String getUserData = 'get_user_data';
+  static const String newTask = 'new_task';
+  static const String updateOrDeleteTask = 'tasks';
 
 }
