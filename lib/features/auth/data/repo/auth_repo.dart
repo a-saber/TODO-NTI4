@@ -1,18 +1,15 @@
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo_nti4/core/network/api_helper.dart';
+import 'package:todo_nti4/core/network/api_response.dart';
+import 'package:todo_nti4/core/network/end_points.dart';
 import 'package:todo_nti4/features/auth/data/model/basic_response_model.dart';
 import 'package:todo_nti4/features/auth/data/model/login_response_model.dart';
 import 'package:todo_nti4/features/auth/data/model/user_model.dart';
 
 class AuthRepo {
-  Dio dio = Dio(
-    BaseOptions(
-      connectTimeout: Duration(seconds: 5),
-      receiveTimeout: Duration(seconds: 5),
-      sendTimeout: Duration(seconds: 5),
-    )
-  );
+
+  ApiHelper apiHelper = ApiHelper();
 
   Future<Either<String, String>> register({
     required String username,
@@ -21,34 +18,25 @@ class AuthRepo {
   })async{
     try{
       
-      var response =  await dio.post(
-      'https://ntitodo-production-1fa0.up.railway.app/api/register',
-      data: FormData.fromMap({
+      var response =  await apiHelper.postRequest(
+      endPoint: EndPoints.register,
+      data: {
         'username': username,
         'password': password 
-      })
+      }
     );
     
     var basicResponseModel = BasicResponseModel.fromJson(response.data as Map<String,dynamic>);
     if(basicResponseModel.status == true){
-      return right(basicResponseModel.message??'');
+      return right(response.message);
     }
     else{
-      return left(basicResponseModel.message??'');
+      return left(response.message);
     }
     
     }
-    on DioException catch (e){
-      if(e.response?.data != null)
-      {
-        return left(e.response!.data['message']??'');
-      }
-      else{
-        return left('something went wrong'); // TODO: Handle this case.
-      }
-    }
     catch(e){
-      return left('something went wrong');
+      return left(ApiResponse.fromError(e).message);
     }
   }
 
@@ -59,12 +47,12 @@ class AuthRepo {
   })async
   {
     try{
-      var response = await dio.post(
-        'https://ntitodo-production-1fa0.up.railway.app/api/login',
-        data: FormData.fromMap({
+      var response = await apiHelper.postRequest(
+        endPoint: EndPoints.login,
+        data: {
           'username': username,
           'password': password
-        })
+        }
       );
       var loginModel = LoginResponseModel.fromJson(response.data as Map<String,dynamic>);
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -80,21 +68,12 @@ class AuthRepo {
       }
       else
       {
-        throw Exception;
+        return left(response.message);
       }
 
     }
-     on DioException catch (e){
-      if(e.response?.data != null)
-      {
-        return left(e.response!.data['message']??'');
-      }
-      else{
-        return left('something went wrong'); // TODO: Handle this case.
-      }
-    }
     catch(e){
-      return left('something went wrong');
+      return left(ApiResponse.fromError(e).message);
     }
 
   }
