@@ -1,11 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:todo_nti4/core/helper/app_navigator.dart';
 import 'package:todo_nti4/core/helper/app_popup.dart';
 import 'package:todo_nti4/core/helper/app_validator.dart';
 import 'package:todo_nti4/core/widgets/custom_filled_btn.dart';
 import 'package:todo_nti4/core/widgets/custom_form_field.dart';
-import 'package:todo_nti4/features/home/views/home_view.dart';
+import 'package:todo_nti4/features/home/cubit/get_tasks_cubit/get_tasks_cubit.dart';
 import 'package:todo_nti4/features/task/cubit/add_task_cubit/add_task_cubit.dart';
 import 'package:todo_nti4/features/task/cubit/add_task_cubit/add_task_state.dart';
 
@@ -38,7 +39,10 @@ class AddTaskView extends StatelessWidget {
                state: PopUpState.success
              );
 
-             Navigator.pop(context, true);
+            GetTasksCubit.get(context).getTasks();
+            Navigator.pop(context);
+            // Navigator.pop(context, true);
+
             }
           },
           builder: (context, state) {
@@ -48,6 +52,16 @@ class AddTaskView extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
+                    if(AddTaskCubit.get(context).image != null)
+                  Container(
+                    height: 200,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(image: FileImage(File(AddTaskCubit.get(context).image!.path)))
+                    ),
+                  ),
+                  CustomFilledBtn(onPressed: AddTaskCubit.get(context).pickImage, text: 'Pick Image'),
+                  SizedBox(height: 20,),
                   CustomFormField(
                     controller: AddTaskCubit.get(context).title,
                     prefix: Icon(Icons.title), 

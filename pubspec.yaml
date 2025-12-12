@@ -39,6 +39,7 @@ dependencies:
   dartz:
   cached_network_image: 
   shared_preferences: 
+  image_picker: 
 
 dev_dependencies:
   flutter_test:

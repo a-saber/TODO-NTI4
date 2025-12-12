@@ -1,4 +1,6 @@
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:todo_nti4/core/network/api_helper.dart';
 import 'package:todo_nti4/core/network/api_response.dart';
 import 'package:todo_nti4/core/network/end_points.dart';
@@ -9,6 +11,7 @@ class TaskRepo {
   Future<Either<String, Unit>> addTask({
     required String title,
     required String description,
+    XFile? image
   }) async 
   {
     try{
@@ -17,7 +20,8 @@ class TaskRepo {
         isProtected: true,
         data: {
           'title': title,
-          'description': description
+          'description': description,
+          if(image != null) 'image': await MultipartFile.fromFile(image.path)
         }
       );
       if(response.status){
@@ -36,17 +40,20 @@ class TaskRepo {
   Future<Either<String, String>> updateTask({
     required String title,
     required String description,
-    required int taskId
+    required int taskId,
+    XFile? image
+
   }) async 
   {
     try{
       var response = await apiHelper.putRequest(
         endPoint: '${EndPoints.updateOrDeleteTask}/$taskId',
         isProtected: true,
-
         data: {
           'title': title,
-          'description': description
+          'description': description,
+          if(image != null) 'image': await MultipartFile.fromFile(image.path)
+
         }
       );
       if(response.status){
